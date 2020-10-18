@@ -3,7 +3,7 @@ use std::net::TcpStream;
 pub struct Connection {
     address: String,
     key: String,
-    pub(crate) stream: Option<TcpStream>,
+    pub stream: Option<TcpStream>,
 }
 
 impl Connection {
