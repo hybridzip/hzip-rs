@@ -1,8 +1,8 @@
 use std::net::TcpStream;
 
 pub struct Connection {
-    address: String,
-    key: String,
+    pub(crate) address: String,
+    pub(crate) key: String,
     pub stream: Option<TcpStream>,
 }
 
