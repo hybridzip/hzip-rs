@@ -14,7 +14,7 @@ pub(crate) fn read_ctl_word(stream: &mut TcpStream) -> Result<CommonCtl, anyhow:
             let mut len_buf = [0 as u8; 8];
             stream.read(&mut len_buf)?;
 
-            let len = byteorder::LittleEndian::read_u64(&len_buf);
+            let len = LittleEndian::read_u64(&len_buf);
             let mut msg_buf = vec![0 as u8; len as usize];
 
             stream.read(&mut msg_buf)?;
@@ -26,12 +26,12 @@ pub(crate) fn read_ctl_word(stream: &mut TcpStream) -> Result<CommonCtl, anyhow:
             let mut len_buf = [0 as u8; 8];
             stream.read(&mut len_buf)?;
 
-            let len = byteorder::LittleEndian::read_u64(&len_buf);
+            let len = LittleEndian::read_u64(&len_buf);
             let mut msg_buf = vec![0 as u8; len as usize];
 
             stream.read(&mut msg_buf)?;
 
-            let msg: String = std::str::from_utf8(&msg_buf).unwrap().to_string();
+            let msg: String = std::str::from_utf8(&msg_buf)?.to_string();
 
             Err(anyhow!(msg))
         }
@@ -47,6 +47,19 @@ pub(crate) fn write_ctl_string(stream: &mut TcpStream, s: String) -> Result<(), 
     stream.write(s.as_bytes())?;
 
     Ok(())
+}
+
+pub(crate) fn read_ctl_string(stream: &mut TcpStream) -> Result<String, anyhow::Error> {
+    let mut len_buf = [0 as u8; 2];
+    stream.read(&mut len_buf)?;
+
+    let len = LittleEndian::read_u16(&mut len_buf);
+    let mut buf = vec![0 as u8; len as usize];
+
+    stream.read(&mut buf)?;
+    let s = std::str::from_utf8(&buf)?.to_string();
+
+    Ok(s)
 }
 
 pub(crate) fn write_ctl_word(stream: &mut TcpStream, word: u8) -> Result<(), anyhow::Error> {
