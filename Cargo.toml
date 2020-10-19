@@ -19,3 +19,7 @@ hzip = {path = "."}
 [[test]]
 name = "handshake"
 path = "tests/handshake.rs"
+
+[[test]]
+name = "query"
+path = "tests/query.rs"
