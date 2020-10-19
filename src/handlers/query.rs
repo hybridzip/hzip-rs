@@ -6,11 +6,11 @@ use crate::control::api::{ApiCtl, CommonCtl};
 use std::io::Read;
 use crate::utils::common::{write_ctl_string, write_ctl_word, read_ctl_word};
 
-pub trait Queryable {
+pub trait FileSystem {
     fn check_if_file_exists(&mut self, filename: String) -> Result<bool, anyhow::Error>;
 }
 
-impl Queryable for Connection {
+impl FileSystem for Connection {
     fn check_if_file_exists(&mut self, filename: String) -> Result<bool, Error> {
         self.refresh_session()?;
 
