@@ -3,7 +3,7 @@ use crate::utils::common;
 use anyhow::Error;
 use std::io::{Read, Write};
 
-pub trait Handshaker {
+pub(crate) trait Handshaker {
     fn handshake(&mut self, key: String) -> Result<(), anyhow::Error>;
 }
 

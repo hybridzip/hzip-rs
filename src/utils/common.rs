@@ -1,10 +1,10 @@
 use std::net::TcpStream;
-use std::io::Read;
-use crate::control::control::CommonCtl;
-use byteorder::ByteOrder;
+use std::io::{Read, Write};
+use crate::control::api::CommonCtl;
+use byteorder::{ByteOrder, LittleEndian};
 use num_traits::FromPrimitive;
 
-pub fn read_ctl_word(stream: &mut TcpStream) -> Result<CommonCtl, anyhow::Error> {
+pub(crate) fn read_ctl_word(stream: &mut TcpStream) -> Result<CommonCtl, anyhow::Error> {
     let mut word = [0 as u8; 1];
 
     stream.read(&mut word)?;
@@ -37,4 +37,21 @@ pub fn read_ctl_word(stream: &mut TcpStream) -> Result<CommonCtl, anyhow::Error>
         }
         None => Err(anyhow!("Invalid control word was received"))
     }
+}
+
+pub(crate) fn write_ctl_string(stream: &mut TcpStream, s: String) -> Result<(), anyhow::Error> {
+    let mut len = [0 as u8; 2];
+    LittleEndian::write_u16(&mut len, s.len() as u16);
+
+    stream.write(&len)?;
+    stream.write(s.as_bytes())?;
+
+    Ok(())
+}
+
+pub(crate) fn write_ctl_word(stream: &mut TcpStream, word: u8) -> Result<(), anyhow::Error> {
+    let buf = [word as u8; 1];
+    stream.write(&buf)?;
+
+    Ok(())
 }
