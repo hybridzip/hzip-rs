@@ -24,3 +24,7 @@ path = "tests/handshake.rs"
 [[test]]
 name = "query"
 path = "tests/query.rs"
+
+[[test]]
+name = "stream"
+path = "tests/stream.rs"
