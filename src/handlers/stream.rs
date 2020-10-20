@@ -84,9 +84,6 @@ impl Streamable for Connection {
         write_ctl_word(stream, DecodeCtl::Source as u8)?;
         write_ctl_string(stream, config.filename.clone())?;
 
-        write_ctl_word(stream, DecodeCtl::Algorithm as u8)?;
-        write_ctl_word(stream, config.algorithm.unwrap().clone() as u8)?;
-
         write_ctl_word(stream, DecodeCtl::Piggyback as u8)?;
         write_ctl_word(stream, DecodeCtl::Stream as u8)?;
 

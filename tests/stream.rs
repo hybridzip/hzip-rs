@@ -8,11 +8,21 @@ fn test_write_file_without_model() {
 
     let data = "Some data to write to a file".as_bytes();
     hz.write_file(data, StreamConfig {
-        filename: "/sample.txt".to_string(),
-        algorithm: Algorithm::Victini,
+        filename: "/test_write_file_without_model.txt".to_string(),
+        algorithm: Some(Algorithm::Victini),
         model: None,
     });
 
-    assert!(hz.file_exists("/sample.txt".to_string()).unwrap() == true);
-    assert_eq!(vec!["/sample.txt".to_string()], hz.all_files().unwrap());
+    assert!(hz.file_exists("/test_write_file_without_model.txt".to_string()).unwrap() == true);
+    assert_eq!(vec!["/test_write_file_without_model.txt".to_string()], hz.all_files().unwrap());
+
+    let mut buf: Vec<u8> = vec![];
+
+    hz.read_file(&mut buf, StreamConfig {
+        filename: "/test_write_file_without_model.txt".to_string(),
+        algorithm: None,
+        model: None,
+    });
+
+    assert_eq!("Some data to write to a file".to_string(), std::str::from_utf8(&buf).unwrap());
 }
