@@ -4,7 +4,7 @@ use hzip::handlers::stream::{Streamable, StreamConfig, Algorithm};
 
 #[test]
 fn test_write_file_without_model() {
-    let mut hz = Connection::new("hzip://localhost:1729/?password=hybridzip&archive=test.hz");
+    let mut hz = Connection::new("hzip://localhost:1729?password=hybridzip&archive=test.hz");
 
     let data = "Some data to write to a file".as_bytes();
     hz.write_file(data, StreamConfig {

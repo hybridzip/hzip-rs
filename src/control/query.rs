@@ -6,4 +6,6 @@ pub enum QueryCtl {
     CheckIfFileExists = 0x1,
     GetAllFiles = 0x2,
     PiggyBack = 0x3,
+    DeleteFile = 0x4,
+    DeleteModel = 0x5,
 }

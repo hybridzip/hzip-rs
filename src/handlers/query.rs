@@ -12,6 +12,8 @@ use crate::utils::common::{read_ctl_string, read_ctl_word, write_ctl_string, wri
 pub trait FileSystem {
     fn file_exists(&mut self, filename: String) -> Result<bool, anyhow::Error>;
     fn all_files(&mut self) -> Result<Vec<String>, anyhow::Error>;
+    fn delete_file(&mut self, filename: String) -> Result<(), anyhow::Error>;
+    fn delete_model(&mut self, model: String) -> Result<(), anyhow::Error>;
 }
 
 impl FileSystem for Connection {
@@ -67,5 +69,35 @@ impl FileSystem for Connection {
         }
 
         Ok(files)
+    }
+
+    fn delete_file(&mut self, filename: String) -> Result<(), Error> {
+        self.refresh_session()?;
+
+        let stream = self.stream.as_mut().unwrap();
+        write_ctl_word(stream, ApiCtl::Query as u8)?;
+
+        write_ctl_word(stream, QueryCtl::Archive as u8)?;
+        write_ctl_string(stream, self.archive.clone())?;
+
+        write_ctl_word(stream, QueryCtl::DeleteFile as u8)?;
+        write_ctl_string(stream, filename)?;
+
+        Ok(())
+    }
+
+    fn delete_model(&mut self, model: String) -> Result<(), Error> {
+        self.refresh_session()?;
+
+        let stream = self.stream.as_mut().unwrap();
+        write_ctl_word(stream, ApiCtl::Query as u8)?;
+
+        write_ctl_word(stream, QueryCtl::Archive as u8)?;
+        write_ctl_string(stream, self.archive.clone())?;
+
+        write_ctl_word(stream, QueryCtl::DeleteModel as u8)?;
+        write_ctl_string(stream, model)?;
+
+        Ok(())
     }
 }
