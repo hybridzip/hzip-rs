@@ -11,7 +11,7 @@ fn test_write_file_without_model() {
         filename: "/test_write_file_without_model.txt".to_string(),
         algorithm: Some(Algorithm::Victini),
         model: None,
-    });
+    }).unwrap();
 
     assert!(hz.file_exists("/test_write_file_without_model.txt".to_string()).unwrap() == true);
 
