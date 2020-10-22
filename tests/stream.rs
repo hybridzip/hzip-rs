@@ -14,7 +14,6 @@ fn test_write_file_without_model() {
     });
 
     assert!(hz.file_exists("/test_write_file_without_model.txt".to_string()).unwrap() == true);
-    assert_eq!(vec!["/test_write_file_without_model.txt".to_string()], hz.all_files().unwrap());
 
     let mut buf: Vec<u8> = vec![];
 

@@ -1,18 +1,19 @@
 use std::io::{Read, Write};
-use crate::connection::connection::Connection;
-use crate::handlers::session::SessionManager;
-use crate::utils::common::{write_ctl_word, write_ctl_string, read_ctl_word};
-use crate::control::api::{ApiCtl, CommonCtl};
-use crate::control::stream::{StreamCtl, EncodeCtl, DecodeCtl};
-use byteorder::{LittleEndian, ByteOrder};
-use num_derive::FromPrimitive;
-use anyhow::Error;
 
+use anyhow::Error;
+use byteorder::{ByteOrder, LittleEndian};
+use num_derive::FromPrimitive;
+
+use crate::connection::connection::Connection;
+use crate::control::api::ApiCtl;
+use crate::control::stream::{DecodeCtl, EncodeCtl, StreamCtl};
+use crate::handlers::session::SessionManager;
+use crate::utils::common::{read_ctl_string, read_stream, write_ctl_string, write_ctl_word};
 
 #[derive(Debug, Clone, FromPrimitive, PartialEq)]
 pub enum Algorithm {
     Undefined = 0x0,
-    Victini = 0x1
+    Victini = 0x1,
 }
 
 pub struct StreamConfig {
@@ -65,7 +66,7 @@ impl Streamable for Connection {
         stream.write(&mut len_bytes)?;
         stream.write(&mut buf)?;
 
-        read_ctl_word(stream)?;
+        read_ctl_string(stream)?;
 
         Ok(())
     }
@@ -87,17 +88,17 @@ impl Streamable for Connection {
         write_ctl_word(stream, DecodeCtl::Piggyback as u8)?;
         write_ctl_word(stream, DecodeCtl::Stream as u8)?;
 
-        while read_ctl_word(stream)? == CommonCtl::PiggyBack {
-            let mut len_buf = [0 as u8; 8];
-            stream.read(&mut len_buf)?;
 
-            let len = LittleEndian::read_u64(&len_buf);
+        let mut len_buf = [0 as u8; 8];
+        read_stream(stream, &mut len_buf)?;
 
-            let mut buf: Vec<u8> = vec![0 as u8; len as usize];
-            stream.read(&mut buf)?;
+        let len = LittleEndian::read_u64(&len_buf);
 
-            writer.write(&buf)?;
-        }
+        let mut buf: Vec<u8> = vec![0 as u8; len as usize];
+        read_stream(stream, &mut buf)?;
+
+        writer.write(&buf)?;
+
 
         Ok(())
     }

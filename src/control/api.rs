@@ -3,7 +3,6 @@ use num_derive::FromPrimitive;
 #[derive(FromPrimitive, PartialEq)]
 pub enum CommonCtl {
     Success = 0x0,
-    PiggyBack = 0x1,
     Error = 0xff
 }
 

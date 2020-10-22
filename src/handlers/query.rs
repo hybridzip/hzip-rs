@@ -1,13 +1,11 @@
-use std::io::Read;
-
 use anyhow::Error;
 use byteorder::{ByteOrder, LittleEndian};
 
 use crate::connection::connection::Connection;
-use crate::control::api::{ApiCtl, CommonCtl};
+use crate::control::api::ApiCtl;
 use crate::control::query::QueryCtl;
 use crate::handlers::session::SessionManager;
-use crate::utils::common::{read_ctl_string, read_ctl_word, write_ctl_string, write_ctl_word};
+use crate::utils::common::{read_ctl_string, read_stream, write_ctl_string, write_ctl_word};
 
 pub trait FileSystem {
     fn file_exists(&mut self, filename: String) -> Result<bool, anyhow::Error>;
@@ -31,14 +29,11 @@ impl FileSystem for Connection {
         write_ctl_word(stream, QueryCtl::CheckIfFileExists as u8)?;
         write_ctl_string(stream, filename)?;
 
-        if read_ctl_word(stream)? == CommonCtl::PiggyBack {
-            let mut found = [0 as u8; 1];
-            stream.read(&mut found)?;
 
-            return Ok(found[0] != 0);
-        }
+        let mut found = [0 as u8; 1];
+        read_stream(stream, &mut found)?;
 
-        Ok(false)
+        Ok(found[0] != 0)
     }
 
     fn all_files(&mut self) -> Result<Vec<String>, Error> {
@@ -56,17 +51,17 @@ impl FileSystem for Connection {
 
         let mut files: Vec<String> = vec![];
 
-        if read_ctl_word(stream)? == CommonCtl::PiggyBack {
-            let mut file_count_buf = [0 as u8; 8];
-            stream.read(&mut file_count_buf)?;
 
-            let count = LittleEndian::read_u64(&file_count_buf);
+        let mut file_count_buf = [0 as u8; 8];
+        read_stream(stream, &mut file_count_buf)?;
 
-            for _ in 0..count {
-                let filename = read_ctl_string(stream)?;
-                files.push(filename);
-            }
+        let count = LittleEndian::read_u64(&file_count_buf);
+
+        for _ in 0..count {
+            let filename = read_ctl_string(stream)?;
+            files.push(filename);
         }
+
 
         Ok(files)
     }

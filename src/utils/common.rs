@@ -4,39 +4,31 @@ use crate::control::api::CommonCtl;
 use byteorder::{ByteOrder, LittleEndian};
 use num_traits::FromPrimitive;
 
-pub(crate) fn read_ctl_word(stream: &mut TcpStream) -> Result<CommonCtl, anyhow::Error> {
-    let mut word = [0 as u8; 1];
+pub(crate) fn read_stream(stream: &mut TcpStream, buf: &mut [u8]) -> Result<(), anyhow::Error> {
+    let mut status = [0 as u8; 1];
 
-    stream.read(&mut word)?;
+    stream.read(&mut status)?;
 
-    match FromPrimitive::from_u8(word[0]) {
+    match FromPrimitive::from_u8(status[0]) {
         Some(CommonCtl::Success) => {
-            let mut len_buf = [0 as u8; 8];
-            stream.read(&mut len_buf)?;
-
-            let len = LittleEndian::read_u64(&len_buf);
-            let mut msg_buf = vec![0 as u8; len as usize];
-
-            stream.read(&mut msg_buf)?;
-
-            Ok(CommonCtl::Success)
+            stream.read(buf)?;
         }
-        Some(CommonCtl::PiggyBack) => Ok(CommonCtl::PiggyBack),
         Some(CommonCtl::Error) => {
-            let mut len_buf = [0 as u8; 8];
+            let mut len_buf = [0 as u8; 2];
             stream.read(&mut len_buf)?;
 
-            let len = LittleEndian::read_u64(&len_buf);
-            let mut msg_buf = vec![0 as u8; len as usize];
+            let len = LittleEndian::read_u16(&mut len_buf);
+            let mut buf = vec![0 as u8; len as usize];
 
-            stream.read(&mut msg_buf)?;
+            stream.read(&mut buf)?;
+            let s = std::str::from_utf8(&buf)?.to_string();
 
-            let msg: String = std::str::from_utf8(&msg_buf)?.to_string();
-
-            Err(anyhow!(msg))
+            return Err(anyhow!(s))
         }
-        None => Err(anyhow!("Invalid control word was received"))
+        _ => {}
     }
+
+    Ok(())
 }
 
 pub(crate) fn write_ctl_string(stream: &mut TcpStream, s: String) -> Result<(), anyhow::Error> {
@@ -51,12 +43,12 @@ pub(crate) fn write_ctl_string(stream: &mut TcpStream, s: String) -> Result<(), 
 
 pub(crate) fn read_ctl_string(stream: &mut TcpStream) -> Result<String, anyhow::Error> {
     let mut len_buf = [0 as u8; 2];
-    stream.read(&mut len_buf)?;
+    read_stream(stream, &mut len_buf)?;
 
     let len = LittleEndian::read_u16(&mut len_buf);
     let mut buf = vec![0 as u8; len as usize];
 
-    stream.read(&mut buf)?;
+    read_stream(stream, &mut buf)?;
     let s = std::str::from_utf8(&buf)?.to_string();
 
     Ok(s)
