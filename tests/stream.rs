@@ -11,7 +11,7 @@ fn test_write_file_without_model() {
         filename: "/test_write_file_without_model.txt".to_string(),
         algorithm: Some(Algorithm::Victini),
         model: None,
-    }).unwrap();
+    });
 
     assert!(hz.file_exists("/test_write_file_without_model.txt".to_string()).unwrap() == true);
 
@@ -21,7 +21,7 @@ fn test_write_file_without_model() {
         filename: "/test_write_file_without_model.txt".to_string(),
         algorithm: None,
         model: None,
-    });
+    }).unwrap();
 
     assert_eq!("Some data to write to a file".to_string(), std::str::from_utf8(&buf).unwrap());
 }

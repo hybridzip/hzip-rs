@@ -2,9 +2,8 @@ use crate::connection::connection::Connection;
 use std::net::TcpStream;
 use crate::handlers::handshake::Handshaker;
 use anyhow::Error;
-use std::io::Write;
 use crate::control::api::ApiCtl;
-use crate::utils::common::read_ctl_string;
+use crate::utils::common::{read_ctl_string, write_stream};
 
 pub trait SessionManager {
     fn health_check(&mut self) -> Result<(), anyhow::Error>;
@@ -18,9 +17,9 @@ impl SessionManager for Connection {
         }
 
         let stream = self.stream.as_mut().unwrap();
-        let mut word = [ApiCtl::HealthCheck as u8; 1];
+        let word = [ApiCtl::HealthCheck as u8; 1];
 
-        stream.write(&mut word)?;
+        write_stream(stream, &word)?;
 
         read_ctl_string(stream)?;
         Ok(())

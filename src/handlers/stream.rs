@@ -8,7 +8,7 @@ use crate::connection::connection::Connection;
 use crate::control::api::ApiCtl;
 use crate::control::stream::{DecodeCtl, EncodeCtl, StreamCtl};
 use crate::handlers::session::SessionManager;
-use crate::utils::common::{read_ctl_string, read_stream, write_ctl_string, write_ctl_word};
+use crate::utils::common::{read_ctl_string, read_stream, write_ctl_string, write_ctl_word, write_stream};
 
 #[derive(Debug, Clone, FromPrimitive, PartialEq)]
 pub enum Algorithm {
@@ -63,8 +63,8 @@ impl Streamable for Connection {
         let mut len_bytes = [0 as u8; 8];
         LittleEndian::write_u64(&mut len_bytes, buf_len as u64);
 
-        stream.write(&mut len_bytes)?;
-        stream.write(&mut buf)?;
+        write_stream(stream, &len_bytes)?;
+        write_stream(stream, &buf)?;
 
         read_ctl_string(stream)?;
 
