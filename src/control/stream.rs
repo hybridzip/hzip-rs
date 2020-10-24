@@ -4,6 +4,8 @@ use num_derive::FromPrimitive;
 pub enum StreamCtl {
     Encode = 0x0,
     Decode = 0x1,
+    WriteModel = 0x2,
+    ReadModel = 0x3,
 }
 
 #[derive(FromPrimitive)]
@@ -26,5 +28,13 @@ pub enum DecodeCtl {
     Piggyback = 0x5,
     ModelStream = 0x6,
     BlobStream = 0x7,
+}
+
+#[derive(FromPrimitive)]
+pub enum ModelCtl {
+    Archive = 0x0,
+    Address = 0x1,
+    Stream = 0x2,
+    Piggyback = 0x3,
 }
 
