@@ -1,5 +1,5 @@
-use std::net::TcpStream;
 use crate::utils::parser::parse_url;
+use std::net::TcpStream;
 
 pub struct Connection {
     pub(crate) address: String,

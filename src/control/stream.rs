@@ -37,4 +37,3 @@ pub enum ModelCtl {
     Stream = 0x2,
     Piggyback = 0x3,
 }
-

@@ -9,8 +9,9 @@ use crate::connection::connection::Connection;
 use crate::control::api::ApiCtl;
 use crate::control::stream::{DecodeCtl, EncodeCtl, ModelCtl, StreamCtl};
 use crate::handlers::session::SessionManager;
-use crate::utils::common::{read_ctl_string, read_stream, write_ctl_string,
-                           write_ctl_word, write_stream};
+use crate::utils::common::{
+    read_ctl_string, read_stream, write_ctl_string, write_ctl_word, write_stream,
+};
 
 #[derive(Debug, Clone, FromPrimitive, PartialEq)]
 pub enum Algorithm {
@@ -25,17 +26,31 @@ pub struct StreamConfig {
 }
 
 pub trait Streamable {
-    fn write_file<R: Read>(&mut self, reader: R, config: StreamConfig) -> Result<(), anyhow::Error>;
+    fn write_file<R: Read>(&mut self, reader: R, config: StreamConfig)
+        -> Result<(), anyhow::Error>;
 
-    fn read_file<W: Write>(&mut self, writer: W, config: StreamConfig) -> Result<(), anyhow::Error>;
+    fn read_file<W: Write>(&mut self, writer: W, config: StreamConfig)
+        -> Result<(), anyhow::Error>;
 
-    fn write_model<R: Read>(&mut self, reader: R, config: StreamConfig) -> Result<(), anyhow::Error>;
+    fn write_model<R: Read>(
+        &mut self,
+        reader: R,
+        config: StreamConfig,
+    ) -> Result<(), anyhow::Error>;
 
-    fn read_model<W: Write>(&mut self, writer: W, config: StreamConfig) -> Result<Option<Algorithm>, anyhow::Error>;
+    fn read_model<W: Write>(
+        &mut self,
+        writer: W,
+        config: StreamConfig,
+    ) -> Result<Option<Algorithm>, anyhow::Error>;
 }
 
 impl Streamable for Connection {
-    fn write_file<R: Read>(&mut self, mut reader: R, config: StreamConfig) -> Result<(), anyhow::Error> {
+    fn write_file<R: Read>(
+        &mut self,
+        mut reader: R,
+        config: StreamConfig,
+    ) -> Result<(), anyhow::Error> {
         if config.algorithm.is_none() {
             return Err(anyhow!("Algorithm was not specified"));
         }
@@ -114,7 +129,11 @@ impl Streamable for Connection {
         Ok(())
     }
 
-    fn write_model<R: Read>(&mut self, mut reader: R, config: StreamConfig) -> Result<(), anyhow::Error> {
+    fn write_model<R: Read>(
+        &mut self,
+        mut reader: R,
+        config: StreamConfig,
+    ) -> Result<(), anyhow::Error> {
         if config.algorithm.is_none() {
             return Err(anyhow!("Algorithm was not specified"));
         }
@@ -155,7 +174,11 @@ impl Streamable for Connection {
         Ok(())
     }
 
-    fn read_model<W: Write>(&mut self, mut writer: W, config: StreamConfig) -> Result<Option<Algorithm>, Error> {
+    fn read_model<W: Write>(
+        &mut self,
+        mut writer: W,
+        config: StreamConfig,
+    ) -> Result<Option<Algorithm>, Error> {
         if config.model.is_none() {
             return Err(anyhow!("Model address was not specified"));
         }

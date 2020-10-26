@@ -1,9 +1,9 @@
 use crate::connection::connection::Connection;
-use std::net::TcpStream;
-use crate::handlers::handshake::Handshaker;
-use anyhow::Error;
 use crate::control::api::ApiCtl;
+use crate::handlers::handshake::Handshaker;
 use crate::utils::common::{read_ctl_string, write_stream};
+use anyhow::Error;
+use std::net::TcpStream;
 
 pub trait SessionManager {
     fn health_check(&mut self) -> Result<(), anyhow::Error>;

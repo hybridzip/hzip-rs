@@ -29,7 +29,6 @@ impl FileSystem for Connection {
         write_ctl_word(stream, QueryCtl::CheckIfFileExists as u8)?;
         write_ctl_string(stream, filename)?;
 
-
         let mut found = [0 as u8; 1];
         read_stream(stream, &mut found)?;
 
@@ -51,7 +50,6 @@ impl FileSystem for Connection {
 
         let mut files: Vec<String> = vec![];
 
-
         let mut file_count_buf = [0 as u8; 8];
         read_stream(stream, &mut file_count_buf)?;
 
@@ -61,7 +59,6 @@ impl FileSystem for Connection {
             let filename = read_ctl_string(stream)?;
             files.push(filename);
         }
-
 
         Ok(files)
     }

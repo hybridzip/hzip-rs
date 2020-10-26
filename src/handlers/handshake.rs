@@ -1,6 +1,6 @@
 use crate::connection::connection::Connection;
+use crate::utils::common::{read_ctl_string, read_stream, write_stream};
 use anyhow::Error;
-use crate::utils::common::{read_stream, read_ctl_string, write_stream};
 
 pub(crate) trait Handshaker {
     fn handshake(&mut self, key: String) -> Result<(), anyhow::Error>;
@@ -28,6 +28,6 @@ impl Handshaker for Connection {
 
         read_ctl_string(stream)?;
 
-        return Ok(())
+        return Ok(());
     }
 }

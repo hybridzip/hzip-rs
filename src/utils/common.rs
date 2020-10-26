@@ -1,8 +1,8 @@
-use std::net::{TcpStream, Shutdown};
-use std::io::{Read, Write};
 use crate::control::api::CommonCtl;
 use byteorder::{ByteOrder, LittleEndian};
 use num_traits::FromPrimitive;
+use std::io::{Read, Write};
+use std::net::{Shutdown, TcpStream};
 
 pub(crate) fn read_stream(stream: &mut TcpStream, buf: &mut [u8]) -> Result<(), anyhow::Error> {
     let mut status = [0 as u8; 1];
@@ -25,11 +25,9 @@ pub(crate) fn read_stream(stream: &mut TcpStream, buf: &mut [u8]) -> Result<(), 
 
             stream.shutdown(Shutdown::Both)?;
 
-            return Err(anyhow!(s))
+            return Err(anyhow!(s));
         }
-        _ => {
-            return Err(anyhow!("Undefined word"))
-        }
+        _ => return Err(anyhow!("Undefined word")),
     }
 
     Ok(())
@@ -54,11 +52,9 @@ pub(crate) fn write_stream(stream: &mut TcpStream, buf: &[u8]) -> Result<(), any
 
             stream.shutdown(Shutdown::Both)?;
 
-            return Err(anyhow!(s))
+            return Err(anyhow!(s));
         }
-        _ => {
-            return Err(anyhow!("Undefined word"))
-        }
+        _ => return Err(anyhow!("Undefined word")),
     }
 
     stream.write(buf)?;
@@ -70,8 +66,8 @@ pub(crate) fn write_ctl_string(stream: &mut TcpStream, s: String) -> Result<(), 
     let mut len = [0 as u8; 2];
     LittleEndian::write_u16(&mut len, s.len() as u16);
 
-    write_stream(stream,&len)?;
-    write_stream(stream,s.as_bytes())?;
+    write_stream(stream, &len)?;
+    write_stream(stream, s.as_bytes())?;
 
     Ok(())
 }

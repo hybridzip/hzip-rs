@@ -1,6 +1,6 @@
 use hzip::connection::connection::Connection;
 use hzip::handlers::query::FileSystem;
-use hzip::handlers::stream::{Streamable, StreamConfig, Algorithm};
+use hzip::handlers::stream::{Algorithm, StreamConfig, Streamable};
 
 #[test]
 fn test_check_if_file_exists() {
@@ -21,11 +21,14 @@ fn test_remove_file() {
     let mut hz = Connection::new("hzip://localhost:1729?password=hybridzip&archive=test.hz");
 
     let data = "Some data to write to a file".as_bytes();
-    hz.write_file(data, StreamConfig {
-        filename: "/test_remove_file.txt".to_string(),
-        algorithm: Some(Algorithm::Victini),
-        model: None,
-    });
+    hz.write_file(
+        data,
+        StreamConfig {
+            filename: "/test_remove_file.txt".to_string(),
+            algorithm: Some(Algorithm::Victini),
+            model: None,
+        },
+    );
 
     hz.delete_file("/test_remove_file.txt".to_string()).unwrap();
 
