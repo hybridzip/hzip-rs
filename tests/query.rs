@@ -24,9 +24,9 @@ fn test_remove_file() {
     hz.write_file(
         data,
         StreamConfig {
-            filename: "/test_remove_file.txt".to_string(),
+            filename: Some("/test_remove_file.txt".to_string()),
             algorithm: Some(Algorithm::Victini),
-            model: None,
+            ..Default::default()
         },
     );
 

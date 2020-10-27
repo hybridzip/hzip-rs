@@ -16,6 +16,7 @@ pub enum EncodeCtl {
     Destination = 0x3,
     Algorithm = 0x4,
     Piggyback = 0x5,
+    Train = 0x6,
 }
 
 #[derive(FromPrimitive)]
