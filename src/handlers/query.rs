@@ -12,6 +12,7 @@ pub trait FileSystem {
     fn all_files(&mut self) -> Result<Vec<String>, anyhow::Error>;
     fn delete_file(&mut self, filename: String) -> Result<(), anyhow::Error>;
     fn delete_model(&mut self, model: String) -> Result<(), anyhow::Error>;
+    fn get_mem_usage(&mut self) -> Result<u64, anyhow::Error>;
 }
 
 impl FileSystem for Connection {
@@ -78,6 +79,8 @@ impl FileSystem for Connection {
         Ok(())
     }
 
+
+
     fn delete_model(&mut self, model: String) -> Result<(), Error> {
         self.refresh_session()?;
 
@@ -91,5 +94,18 @@ impl FileSystem for Connection {
         write_ctl_string(stream, model)?;
 
         Ok(())
+    }
+
+    fn get_mem_usage(&mut self) -> Result<u64, Error> {
+        self.refresh_session()?;
+
+        let stream = self.stream.as_mut().unwrap();
+        write_ctl_word(stream, ApiCtl::Query as u8)?;
+        write_ctl_word(stream, QueryCtl::GetMemUsage as u8)?;
+
+        let mut usage_buf = [0 as u8; 8];
+        read_stream(stream, &mut usage_buf)?;
+
+        Ok(LittleEndian::read_u64(&usage_buf))
     }
 }

@@ -9,6 +9,7 @@ fn test_write_file_without_model() {
     let mut hz = Connection::new("hzip://localhost:1729?password=hybridzip&archive=test.hz");
 
     let data = "Some data to write to a file".as_bytes();
+
     hz.write_file(
         data,
         StreamConfig {
@@ -52,6 +53,32 @@ fn test_train_model() {
         algorithm: Some(Algorithm::Victini),
         model: Some("/victini/enwik9".to_string()),
         stream_size: Some(metadata.len() as usize),
+        ..Default::default()
+    }).unwrap();
+}
+
+#[test]
+fn test_read_model() {
+    let mut hz = Connection::new("hzip://localhost:1729?password=hybridzip&archive=test.hz");
+
+    let mut file = File::create("victini.enwik9.hm").unwrap();
+
+    hz.read_model(file, StreamConfig {
+        algorithm: Some(Algorithm::Victini),
+        model: Some("/victini/enwik9".to_string()),
+        ..Default::default()
+    }).unwrap();
+}
+
+#[test]
+fn test_write_model() {
+    let mut hz = Connection::new("hzip://localhost:1729?password=hybridzip&archive=test.hz");
+
+    let mut file = File::open("/home/supercmmetry/Projects/hzip-research/Models/victini.enwik9.hm").unwrap();
+
+    hz.write_model(file, StreamConfig {
+        algorithm: Some(Algorithm::Victini),
+        model: Some("/victini/enwik9".to_string()),
         ..Default::default()
     }).unwrap();
 }

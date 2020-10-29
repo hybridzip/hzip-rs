@@ -34,3 +34,10 @@ fn test_remove_file() {
 
     assert!(hz.file_exists("/test_remove_file.txt".to_string()).unwrap() == false);
 }
+
+#[test]
+fn test_get_mem_usage() {
+    let mut hz = Connection::new("hzip://localhost:1729?password=hybridzip&archive=test.hz");
+
+    dbg!(hz.get_mem_usage().unwrap());
+}

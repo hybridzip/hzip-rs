@@ -115,6 +115,8 @@ impl Streamable for Connection {
             write_buffer_stream(stream, reader, config.stream_size.unwrap().clone())?;
         }
 
+        read_ctl_string(stream)?;
+
         Ok(())
     }
 
@@ -156,6 +158,7 @@ impl Streamable for Connection {
             writer.write(&buf)?;
         }
 
+        read_ctl_string(stream)?;
         Ok(())
     }
 
@@ -185,8 +188,6 @@ impl Streamable for Connection {
         write_ctl_word(stream, ModelCtl::Address as u8)?;
         write_ctl_string(stream, config.model.unwrap())?;
 
-        write_ctl_word(stream, ModelCtl::Piggyback as u8)?;
-
         write_ctl_word(stream, ModelCtl::Stream as u8)?;
 
         write_ctl_word(stream, config.algorithm.unwrap() as u8)?;
@@ -208,6 +209,7 @@ impl Streamable for Connection {
             write_buffer_stream(stream, reader, config.stream_size.unwrap().clone())?;
         }
 
+        read_ctl_string(stream)?;
         Ok(())
     }
 
@@ -247,6 +249,10 @@ impl Streamable for Connection {
 
         let mut buf = vec![0 as u8; len as usize];
         read_stream(stream, &mut buf)?;
+
+        read_ctl_string(stream)?;
+
+        writer.write(&buf)?;
 
         Ok(FromPrimitive::from_u8(alg[0]))
     }
@@ -295,6 +301,7 @@ impl Streamable for Connection {
             write_buffer_stream(stream, reader, config.stream_size.unwrap().clone())?;
         }
 
+        read_ctl_string(stream)?;
         Ok(())
     }
 }

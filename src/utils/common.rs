@@ -10,7 +10,7 @@ use std::cmp::min;
 pub(crate) fn read_status_word(stream: &mut TcpStream) -> Result<(), anyhow::Error> {
     let mut status = [0 as u8; 1];
 
-    stream.read(&mut status)?;
+    stream.read_exact(&mut status)?;
 
     match FromPrimitive::from_u8(status[0]) {
         Some(CommonCtl::Success) => {
@@ -18,12 +18,12 @@ pub(crate) fn read_status_word(stream: &mut TcpStream) -> Result<(), anyhow::Err
         }
         Some(CommonCtl::Error) => {
             let mut len_buf = [0 as u8; 2];
-            stream.read(&mut len_buf)?;
+            stream.read_exact(&mut len_buf)?;
 
             let len = LittleEndian::read_u16(&mut len_buf);
             let mut buf = vec![0 as u8; len as usize];
 
-            stream.read(&mut buf)?;
+            stream.read_exact(&mut buf)?;
             let s = std::str::from_utf8(&buf)?.to_string();
 
             stream.shutdown(Shutdown::Both)?;
@@ -36,7 +36,7 @@ pub(crate) fn read_status_word(stream: &mut TcpStream) -> Result<(), anyhow::Err
 
 pub(crate) fn read_stream(stream: &mut TcpStream, buf: &mut [u8]) -> Result<(), anyhow::Error> {
     read_status_word(stream)?;
-    stream.read(buf)?;
+    stream.read_exact(buf)?;
 
     Ok(())
 }
