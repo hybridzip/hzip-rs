@@ -100,3 +100,10 @@ pub(crate) fn write_buffer_stream<R: Read>(stream: &mut TcpStream, mut reader: R
 
     Ok(())
 }
+
+pub(crate) fn write_stream_u64(stream: &mut TcpStream, x: u64) -> Result<(), anyhow::Error> {
+    let mut buf = [0 as u8; 8];
+    LittleEndian::write_u64(&mut buf, x);
+
+    write_stream(stream, &mut buf)
+}

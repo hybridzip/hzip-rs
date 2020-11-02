@@ -9,7 +9,7 @@ use crate::connection::connection::Connection;
 use crate::control::api::ApiCtl;
 use crate::control::stream::{DecodeCtl, EncodeCtl, ModelCtl, StreamCtl};
 use crate::handlers::session::SessionManager;
-use crate::utils::common::{read_ctl_string, read_stream, write_ctl_string, write_ctl_word, write_stream, read_status_word, write_buffer_stream};
+use crate::utils::common::{read_ctl_string, read_stream, write_ctl_string, write_ctl_word, write_stream, read_status_word, write_buffer_stream, write_stream_u64};
 
 #[derive(Debug, Clone, FromPrimitive, PartialEq)]
 pub enum Algorithm {
@@ -89,7 +89,7 @@ impl Streamable for Connection {
         write_ctl_string(stream, config.filename.unwrap().clone())?;
 
         write_ctl_word(stream, EncodeCtl::Algorithm as u8)?;
-        write_ctl_word(stream, config.algorithm.unwrap().clone() as u8)?;
+        write_stream_u64(stream, config.algorithm.unwrap().clone() as u64)?;
 
         if config.model.is_some() {
             write_ctl_word(stream, EncodeCtl::Model as u8)?;
@@ -190,7 +190,7 @@ impl Streamable for Connection {
 
         write_ctl_word(stream, ModelCtl::Stream as u8)?;
 
-        write_ctl_word(stream, config.algorithm.unwrap() as u8)?;
+        write_stream_u64(stream, config.algorithm.unwrap() as u64)?;
 
         if config.stream_size.is_none() {
             let mut buf: Vec<u8> = vec![];
@@ -239,7 +239,7 @@ impl Streamable for Connection {
 
         write_ctl_word(stream, ModelCtl::Stream as u8)?;
 
-        let mut alg = [0 as u8; 1];
+        let mut alg = [0 as u8; 8];
         read_stream(stream, &mut alg)?;
 
         let mut len_buf = [0 as u8; 8];
@@ -254,7 +254,7 @@ impl Streamable for Connection {
 
         writer.write(&buf)?;
 
-        Ok(FromPrimitive::from_u8(alg[0]))
+        Ok(FromPrimitive::from_u64(LittleEndian::read_u64(&alg)))
     }
 
     fn train_model<R: Read>(&mut self, mut reader: R, config: StreamConfig) -> Result<(), Error> {
@@ -280,7 +280,7 @@ impl Streamable for Connection {
         write_ctl_string(stream, config.model.unwrap())?;
 
         write_ctl_word(stream, EncodeCtl::Algorithm as u8)?;
-        write_ctl_word(stream, config.algorithm.unwrap() as u8)?;
+        write_stream_u64(stream, config.algorithm.unwrap() as u64)?;
 
         write_ctl_word(stream, EncodeCtl::Train as u8)?;
 
