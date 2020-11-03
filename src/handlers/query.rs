@@ -7,15 +7,20 @@ use crate::control::query::QueryCtl;
 use crate::handlers::session::SessionManager;
 use crate::utils::common::{read_ctl_string, read_stream, write_ctl_string, write_ctl_word};
 
-pub trait FileSystem {
+pub struct FileSystemEntry {
+    pub entry: String,
+    pub is_file: bool,
+}
+
+pub trait Queryable {
     fn file_exists(&mut self, filename: String) -> Result<bool, anyhow::Error>;
-    fn all_files(&mut self) -> Result<Vec<String>, anyhow::Error>;
+    fn list_fs(&mut self, path: String) -> Result<Vec<FileSystemEntry>, anyhow::Error>;
     fn delete_file(&mut self, filename: String) -> Result<(), anyhow::Error>;
     fn delete_model(&mut self, model: String) -> Result<(), anyhow::Error>;
     fn get_mem_usage(&mut self) -> Result<u64, anyhow::Error>;
 }
 
-impl FileSystem for Connection {
+impl Queryable for Connection {
     fn file_exists(&mut self, filename: String) -> Result<bool, Error> {
         self.refresh_session()?;
 
@@ -27,8 +32,10 @@ impl FileSystem for Connection {
         write_ctl_word(stream, QueryCtl::Archive as u8)?;
         write_ctl_string(stream, self.archive.clone())?;
 
-        write_ctl_word(stream, QueryCtl::CheckIfFileExists as u8)?;
+        write_ctl_word(stream, QueryCtl::Target as u8)?;
         write_ctl_string(stream, filename)?;
+
+        write_ctl_word(stream, QueryCtl::CheckIfFileExists as u8)?;
 
         let mut found = [0 as u8; 1];
         read_stream(stream, &mut found)?;
@@ -36,7 +43,7 @@ impl FileSystem for Connection {
         Ok(found[0] != 0)
     }
 
-    fn all_files(&mut self) -> Result<Vec<String>, Error> {
+    fn list_fs(&mut self, path: String) -> Result<Vec<FileSystemEntry>, Error> {
         self.refresh_session()?;
 
         let stream = self.stream.as_mut().unwrap();
@@ -47,9 +54,12 @@ impl FileSystem for Connection {
         write_ctl_word(stream, QueryCtl::Archive as u8)?;
         write_ctl_string(stream, self.archive.clone())?;
 
-        write_ctl_word(stream, QueryCtl::GetAllFiles as u8)?;
+        write_ctl_word(stream, QueryCtl::Target as u8)?;
+        write_ctl_string(stream, path)?;
 
-        let mut files: Vec<String> = vec![];
+        write_ctl_word(stream, QueryCtl::ListFileSystem as u8)?;
+
+        let mut files: Vec<FileSystemEntry> = vec![];
 
         let mut file_count_buf = [0 as u8; 8];
         read_stream(stream, &mut file_count_buf)?;
@@ -58,7 +68,14 @@ impl FileSystem for Connection {
 
         for _ in 0..count {
             let filename = read_ctl_string(stream)?;
-            files.push(filename);
+            let mut alg = [0 as u8; 1];
+
+            read_stream(stream, &mut alg)?;
+
+            files.push(FileSystemEntry {
+                entry: filename,
+                is_file: alg[0] == 1,
+            });
         }
 
         Ok(files)
@@ -73,12 +90,13 @@ impl FileSystem for Connection {
         write_ctl_word(stream, QueryCtl::Archive as u8)?;
         write_ctl_string(stream, self.archive.clone())?;
 
-        write_ctl_word(stream, QueryCtl::DeleteFile as u8)?;
+        write_ctl_word(stream, QueryCtl::Target as u8)?;
         write_ctl_string(stream, filename)?;
+
+        write_ctl_word(stream, QueryCtl::DeleteFile as u8)?;
 
         Ok(())
     }
-
 
 
     fn delete_model(&mut self, model: String) -> Result<(), Error> {
@@ -90,8 +108,10 @@ impl FileSystem for Connection {
         write_ctl_word(stream, QueryCtl::Archive as u8)?;
         write_ctl_string(stream, self.archive.clone())?;
 
-        write_ctl_word(stream, QueryCtl::DeleteModel as u8)?;
+        write_ctl_word(stream, QueryCtl::Target as u8)?;
         write_ctl_string(stream, model)?;
+
+        write_ctl_word(stream, QueryCtl::DeleteModel as u8)?;
 
         Ok(())
     }
