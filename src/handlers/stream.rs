@@ -9,7 +9,10 @@ use crate::connection::connection::Connection;
 use crate::control::api::ApiCtl;
 use crate::control::stream::{DecodeCtl, EncodeCtl, ModelCtl, StreamCtl};
 use crate::handlers::session::SessionManager;
-use crate::utils::common::{read_ctl_string, read_stream, write_ctl_string, write_ctl_word, write_stream, write_buffer_stream, write_stream_u64};
+use crate::utils::common::{
+    read_ctl_string, read_stream, write_buffer_stream, write_ctl_string, write_ctl_word,
+    write_stream, write_stream_u64,
+};
 
 #[derive(Debug, Clone, FromPrimitive, PartialEq)]
 pub enum Algorithm {
@@ -30,7 +33,7 @@ impl Default for StreamConfig {
             filename: None,
             algorithm: None,
             model: None,
-            stream_size: None
+            stream_size: None,
         }
     }
 }
@@ -57,7 +60,7 @@ pub trait Streamable {
     fn train_model<R: Read>(
         &mut self,
         reader: R,
-        config: StreamConfig
+        config: StreamConfig,
     ) -> Result<(), anyhow::Error>;
 }
 

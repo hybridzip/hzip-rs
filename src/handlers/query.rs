@@ -7,6 +7,7 @@ use crate::control::query::QueryCtl;
 use crate::handlers::session::SessionManager;
 use crate::utils::common::{read_ctl_string, read_stream, write_ctl_string, write_ctl_word};
 
+#[derive(Debug)]
 pub struct FileSystemEntry {
     pub entry: String,
     pub is_file: bool,
@@ -97,7 +98,6 @@ impl Queryable for Connection {
 
         Ok(())
     }
-
 
     fn delete_model(&mut self, model: String) -> Result<(), Error> {
         self.refresh_session()?;

@@ -13,7 +13,7 @@ fn test_check_if_file_exists() {
 fn test_get_some_files() {
     let mut c = Connection::new("hzip://localhost:1729?password=hybridzip&archive=test.hz");
 
-    c.list_fs("/".to_string()).unwrap();
+    dbg!(c.list_fs("/".to_string()).unwrap());
 }
 
 #[test]
@@ -33,7 +33,8 @@ fn test_remove_file() {
             algorithm: Some(Algorithm::Victini),
             ..Default::default()
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     hz.delete_file("/test_remove_file.txt".to_string()).unwrap();
 

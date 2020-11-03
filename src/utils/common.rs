@@ -13,9 +13,7 @@ pub(crate) fn read_status_word(stream: &mut TcpStream) -> Result<(), anyhow::Err
     stream.read_exact(&mut status)?;
 
     match FromPrimitive::from_u8(status[0]) {
-        Some(CommonCtl::Success) => {
-            Ok(())
-        }
+        Some(CommonCtl::Success) => Ok(()),
         Some(CommonCtl::Error) => {
             let mut len_buf = [0 as u8; 2];
             stream.read_exact(&mut len_buf)?;
@@ -77,7 +75,11 @@ pub(crate) fn write_ctl_word(stream: &mut TcpStream, word: u8) -> Result<(), any
     Ok(())
 }
 
-pub(crate) fn write_buffer_stream<R: Read>(stream: &mut TcpStream, mut reader: R, length: usize) -> Result<(), anyhow::Error> {
+pub(crate) fn write_buffer_stream<R: Read>(
+    stream: &mut TcpStream,
+    mut reader: R,
+    length: usize,
+) -> Result<(), anyhow::Error> {
     // HZ_RECV manual sync sub-protocol
     // Receive the sync ctl-word
     // Send data in variable-sized buffers
